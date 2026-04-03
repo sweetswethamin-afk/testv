@@ -9,15 +9,28 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL: 'https://opensource-demo.orangehrmlive.com',
+    storageState: 'state.json',
     screenshot: 'only-on-failure',
   },
   projects: [
     {
-      name: 'Google Chrome',
+      name: 'Login',
+      testMatch: 'login.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         channel: 'chrome',
       },
+
+    },
+    {
+      name: 'Dashboard',
+      testMatch: 'dash.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        storageState: 'state.json',
+      },
+      dependencies: ['Login']
     },
   ],
 });

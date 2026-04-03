@@ -5,7 +5,7 @@ test('Search existing user by username in OrangeHRM Admin', async ({ page }) => 
 
    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
 
-  await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible({ timeout: 10000 });
   await page.getByRole('link', { name: 'Admin' }).click();
     await expect(page).toHaveURL('https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewSystemUsers');
 

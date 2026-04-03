@@ -29,7 +29,7 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    baseURL: 'https://www.saucedemo.com/',
+    baseURL: 'https://opensource-demo.orangehrmlive.com',
     headless: true,
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
@@ -39,8 +39,24 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'Login',
+      testMatch: 'login.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+         storageState: undefined,
+      },
+
+    },
+    {
+      name: 'Dashboard',
+      testMatch: 'dash.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        storageState: 'state.json',
+      },
+      dependencies: ['Login']
     },
 
     
