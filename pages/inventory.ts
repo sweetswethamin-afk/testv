@@ -3,6 +3,10 @@ import { DDL_SORTING, LBL_ITEM_PRICE } from "../Objects/inventoryObjects";
 
 
 export class Inventory {
+    static addProducts: any;
+    static goto() {
+        throw new Error('Method not implemented.');
+    }
     readonly page: Page;
     readonly ddlSorting: Locator;
     readonly lblItemPrice: Locator;
@@ -51,4 +55,17 @@ export class Inventory {
         await this.page.locator("[data-test='shopping-cart-badge']").click()
         return this
     }
+    async removeProducts(productList : string[]){
+        let removeButton = ""
+                for (const product of productList) {
+                    removeButton = product.replaceAll(" ", "-")
+                    removeButton = removeButton.toLowerCase();
+                    console.log(removeButton);
+                    await this.page.locator(`[data-test="remove-${removeButton}"]`).click()
+    }
+    if(removeButton ==""){
+        throw new Error("No products to remove")
+    }
+}
+
 }

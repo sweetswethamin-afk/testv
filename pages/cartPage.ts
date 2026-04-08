@@ -1,30 +1,34 @@
-import { Locator, Page } from "@playwright/test";
+import { Page, Locator } from '@playwright/test';
 
 export class Cart {
-    readonly page: Page;
-    readonly btnAddToCart : Locator;
-    readonly btnGoBackToProducts : Locator;
-    readonly btnRemove : Locator;
-    readonly productsPrice : Locator;
+  readonly page: Page;
+  readonly checkoutBtn: Locator;
+  readonly cartItems: Locator;
+  readonly addToCartBtn: Locator;
+  readonly backBtn: Locator;
 
-    constructor(page: Page) {
-        this.page = page;
-        this.btnAddToCart = page.getByRole("button", { name: "Add to cart" })
-        this.btnGoBackToProducts = page.getByRole("button", { name: "Go back Back to products" })
-        this.btnRemove = page.locator("[data-test='remove-sauce-labs-backpack']")
-        this.productsPrice = page.locator("[data-test='inventory-item-name']")
-    }
-    async AddToCart() {
-        await this.btnAddToCart.click()
-        return this
-    }
-    async GoBackToProducts() {
-        await this.btnGoBackToProducts.click()
-        return this
-    }
-    async Remove() {
-        await this.btnRemove.click()
-        return this
-    }
-    
+  constructor(page: Page) {
+    this.page = page;
+
+    this.checkoutBtn = page.getByRole('button', { name: 'Checkout' });
+    this.cartItems = page.locator('[data-test="inventory-item-name"]');
+    this.addToCartBtn = page.getByRole('button', { name: 'Add to cart' });
+    this.backBtn = page.getByRole('button', { name: 'Go back Back to products' });
+  }
+
+  async AddToCart() {
+    await this.addToCartBtn.click();
+  }
+
+  async GoBackToProducts() {
+    await this.backBtn.click();
+  }
+
+  async clickCheckout() {
+    await this.checkoutBtn.click();
+  }
+
+  async getProducts() {
+    return await this.cartItems.allInnerTexts();
+  }
 }

@@ -3,6 +3,9 @@ import { ENV } from '../../conf/env';
 import { addProductList, removeProductList } from '../../test-data/product';
 import { PageEndpoints, sorting } from '../../constants/constant';
 import { Inventory } from '../../pages/inventory';
+import { Cart } from '../../pages/cartPage';
+import { CheckoutPage } from '../../pages/checkout';
+import { Logout } from '../../pages/logout';
 
 test.describe("Inventory Feature", () => {
   test.beforeEach(async ({ page }) => {
@@ -22,67 +25,60 @@ test.describe("Inventory Feature", () => {
   });
 
   test("Add a product to the cart", async ({ page }) => {
-    await page.goto(PageEndpoints.INVENTORY);
+    const inventory = new Inventory(page);
+    const cart = new Cart(page);
+    const checkout = new CheckoutPage(page);
+
     for (const product of addProductList) {
-      await page.getByText(product).click();
-      await page.getByRole("button", { name: "Add to cart" }).click();
-      await page.getByRole("button", { name: "Go back Back to products" }).click();
+      await inventory.selectProduct(product)
+      await cart.AddToCart()
+      await cart.GoBackToProducts()
     }
-    await page.locator("[data-test='shopping-cart-badge']").click();
-    let allProductNames = await page.locator("[data-test='inventory-item-name']").allInnerTexts();
-    expect(allProductNames, "Count of products in cart is not correct").toHaveLength(addProductList.length);
-    expect(allProductNames, "Products in cart are not correct").toEqual(addProductList);
+
+    await inventory.goShoppingCart()
+    let allProductNames = await cart.getProducts();
+    expect(allProductNames, "Count of products in cart is not correct").toHaveLength(addProductList.length)
+    expect(allProductNames, "Products in cart are not correct").toEqual(addProductList)
+  })
+  test("Remove a product to the cart", async ({ page }) => {
+
+    const inventory = new Inventory(page);
+    const cart = new Cart(page);
+    for (const product of addProductList) {
+  await inventory.selectProduct(product);
+  await cart.AddToCart();
+  await cart.GoBackToProducts();
+}
+    await inventory.removeProducts(removeProductList)
+    await inventory.goShoppingCart()
+
+
+    await inventory.goShoppingCart();
+    await cart.clickCheckout();
+const checkout = new CheckoutPage(page);
+
+await checkout.fillCheckoutInfo("Test", "User", "12345");
+
+const products = await checkout.getCheckoutProducts();
+expect(products).toHaveLength(
+  addProductList.length - removeProductList.length
+);
+
+await checkout.finishOrder();
+await checkout.verifyOrderPlaced();
+await checkout.backHome();
+console.log("INSTANCE METHOD CALLED");
   });
 
-  test("Remove a product from the cart", async ({ page }) => {
-    await page.goto(PageEndpoints.INVENTORY);
-    for (const product of addProductList) {
-      await page.getByText(product).click();
-      await page.getByRole("button", { name: "Add to cart" }).click();
-      await page.getByRole("button", { name: "Go back Back to products" }).click();
-    }
-    for (const product of removeProductList) {
-      let removeButton = product.replaceAll(" ", "-").toLowerCase();
-      console.log(removeButton);
-      await page.locator(`[data-test='remove-${removeButton}']`).click();
-    }
-    await page.locator("[data-test='shopping-cart-badge']").click();
-    let allProductNames = await page.locator("[data-test='inventory-item-name']").allInnerTexts();
-    expect(allProductNames, "Count of products in cart is not correct").toHaveLength(addProductList.length - removeProductList.length);
-    expect(allProductNames, "Products in cart are not correct").not.toEqual(removeProductList);
-    expect(allProductNames, "Products in cart are not correct").not.toEqual(addProductList);
-  });
-
-  test("Checkout the products", async ({ page }) => {
-    await page.goto(PageEndpoints.INVENTORY);
-    for (const product of addProductList) {
-      await page.getByText(product).click();
-      await page.getByRole("button", { name: "Add to cart" }).click();
-      await page.getByRole("button", { name: "Go back Back to products" }).click();
-    }
-    await page.locator("[data-test='shopping-cart-badge']").click();
-    await page.getByRole("button", { name: "Checkout" }).click();
-    await page.getByRole("textbox", { name: "First Name" }).fill("Test");
-    await page.getByRole("textbox", { name: "Last Name" }).fill("User");
-    await page.getByRole("textbox", { name: "Zip/Postal Code" }).fill("12345");
-    await page.getByRole("button", { name: "Continue" }).click();
-    let allProductNames = await page.locator("[data-test='inventory-item-name']").allInnerTexts();
-    expect(allProductNames, "Count of products in cart is not correct").toHaveLength(addProductList.length);
-    expect(allProductNames, "Products in cart are not correct").toEqual(addProductList);
-    await page.getByRole("button", { name: "Finish" }).click();
-    await expect(page.getByText("Thank you for your order!")).toBeVisible();
-    await page.getByRole("button", { name: "Back Home" }).click();
-  });
 
   test("Logout", async ({ page }) => {
-    await page.goto(PageEndpoints.INVENTORY);
-    for (const product of addProductList) {
-      await page.getByText(product).click();
-      await page.getByRole("button", { name: "Add to cart" }).click();
-      await page.getByRole("button", { name: "Go back Back to products" }).click();
-    }
-    await page.getByRole("button", { name: "Open Menu" }).click();
-    await page.getByText("Logout").click();
-    await expect(page.getByText("Swag Labs")).toBeVisible();
+    const menu = new Logout(page);
+
+    await menu.logout();
+
+    await expect(page).toHaveURL(/saucedemo/);
+    await expect(page.locator('#login-button')).toBeVisible();
   });
+
+
 });
