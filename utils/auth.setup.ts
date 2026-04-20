@@ -2,8 +2,10 @@
 import { chromium, type FullConfig } from '@playwright/test';
 
 async function globalSetup(config: FullConfig) {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const page = await browser.newPage();
+  console.log('CI:', process.env.CI);
+console.log('PWDEBUG:', process.env.PWDEBUG);
 
   await page.goto('https://www.saucedemo.com/');
   await page.locator('[data-test="username"]').fill(process.env.USERNAME!);

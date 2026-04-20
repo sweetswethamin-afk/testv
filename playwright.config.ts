@@ -30,7 +30,7 @@ export default defineConfig({
   
   use: {
     baseURL: ENV.BASE_URL,
-    headless: false,
+    headless: true,
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
     video: 'retain-on-failure',
