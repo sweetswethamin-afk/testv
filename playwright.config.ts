@@ -25,12 +25,16 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  
+  globalSetup: require.resolve('./utils/auth.setup.ts'),
+  
   use: {
     baseURL: ENV.BASE_URL,
     headless: false,
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
-    video: 'retain-on-failure'
+    video: 'retain-on-failure',
+    storageState: 'state.json',
   },
 
   projects: [
@@ -43,7 +47,27 @@ export default defineConfig({
         storageState: undefined,
       },
     },
-]
+
+    {
+      name: 'Login',
+      testMatch: 'login.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+      },
+
+    },
+    {
+      name: 'Dashboard',
+      testMatch: 'dash.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        storageState: 'state.json',
+      },
+      dependencies: ['Login']
+    },
+  ],
 
   
 
